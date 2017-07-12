@@ -20,6 +20,29 @@ outDir = sys.argv[4]
 
 print(sys.argv[1:])
 
+def flip(base):
+    if base=='A':
+        return 'T'
+    if base=='T':
+        return 'A'
+    if base=='G':
+        return 'C'
+    if base=='C':
+        return 'G'
+    else:
+        return base
+    
+def hgvs(pos, cds, strand):
+    pos = re.sub(':', ':g.', pos)
+    cds = re.sub('[0-9_+-]', '', cds)
+    
+    if strand == '-':
+       split = list(cds)
+       f = map(flip, split)
+       cds = ''.join(f)
+    hgvs = pos + cds
+    return(hgvs)       
+
 ### read fm fml file and parse variant, alteration and rearrangement info
 name = re.sub('.xml', '', basename(xmlFile))
 
@@ -28,9 +51,11 @@ xmldoc = minidom.parse(xmlFile)
 varlist = xmldoc.getElementsByTagName('short-variant')
 if len(varlist) > 0:
     var = tempfile.NamedTemporaryFile(delete=False)
-    var.write('protein\n')
+    #var.write('protein\n')
+    var.write('gdna\n')
     for s in varlist:
-        var.write(s.attributes['transcript'].value + ':p.' +  s.attributes['protein-effect'].value)
+        #var.write(s.attributes['transcript'].value + ':p.' +  s.attributes['protein-effect'].value)
+        var.write(hgvs(s.attributes['position'].value, s.attributes['cds-effect'].value, s.attributes['strand'].value))
         var.write('\n')
     var.close()
     varfile=True
