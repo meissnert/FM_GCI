@@ -94,8 +94,8 @@ disease='CANCER'
 payload = {'cancer_type': disease, 'title': name}
 
 files = {'mutations': open(var.name, 'rb') if varfile else None,
-         'cnas': open(cna.name, 'rb') if cnafile else None#,
-         #'translocations': open(rea.name, 'rb') if reafile else None
+         'cnas': open(cna.name, 'rb') if cnafile else None,
+         'translocations': open(rea.name, 'rb') if reafile else None
          }
 files = {k:v for k,v in files.items() if v is not None}
 
