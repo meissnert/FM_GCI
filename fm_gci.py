@@ -125,4 +125,4 @@ with open(outDir + '/' + name + '.zip', 'wb') as fd:
     fd.write(r._content)
     
 print('done')
-print('Output saved to ' + '/' + outDir + name + '.zip')
+print('Output saved to ' + outDir + '/' + name + '.zip')
