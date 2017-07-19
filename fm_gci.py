@@ -11,6 +11,8 @@ import re
 import requests
 from xml.dom import minidom
 import tempfile
+from datetime import datetime
+import sys
 
 # get commandline input
 xmlFile = sys.argv[1]
@@ -66,7 +68,7 @@ if(varfile):
     with open(var.name, 'r') as fin:
         print fin.read()
 else:
-    print('No variant data detexted\n')
+    print('No variant data detected\n')
     
     
 cnalist = xmldoc.getElementsByTagName('copy-number-alteration')
@@ -110,6 +112,10 @@ if(reafile):
 else:
     print('No Rearangement data detected\n')
     
+if varfile==False & cnafile==False & reafile==False:
+    print('No input data in XML file')
+    sys.exit(0)
+    
 ### query cancergenomeinerpreter
 headers = {'Authorization': email + ' ' + key}
 api = 'https://www.cancergenomeinterpreter.org/api/v1/'
@@ -151,3 +157,15 @@ with open(outDir + '/' + name + '.zip', 'wb') as fd:
     
 print('done')
 print('Output saved to ' + outDir + '/' + name + '.zip')
+
+# delete the oldest job on the server
+r = requests.get(api, headers=headers, verify=False)
+jobList = r.json()
+ 
+date = {}
+for index, i in enumerate(jobList):
+    r = requests.get(api + i, headers=headers, verify=False)
+    date[index] = datetime.strptime(r.json()['metadata']['date'], '%Y-%m-%d %H:%M:%S')
+doDelete = jobList[max(date)]
+r = requests.delete(api + doDelete, headers=headers, verify=False)
+r.json()
