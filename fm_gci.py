@@ -52,7 +52,7 @@ xmldoc = minidom.parse(xmlFile)
 
 varlist = xmldoc.getElementsByTagName('short-variant')
 if len(varlist) > 0:
-    var = tempfile.NamedTemporaryFile(delete=False)
+    var = tempfile.NamedTemporaryFile(delete=False, mode='wt')
     #var.write('protein\n')
     var.write('gdna\n')
     for s in varlist:
@@ -73,7 +73,7 @@ else:
     
 cnalist = xmldoc.getElementsByTagName('copy-number-alteration')
 if len(cnalist) > 0:
-    cna = tempfile.NamedTemporaryFile(delete=False)
+    cna = tempfile.NamedTemporaryFile(delete=False, mode='wt')
     cna.write('gene\tcna\n')
     for s in cnalist:
         if s.attributes['type'].value == 'amplification':
@@ -96,7 +96,7 @@ else:
     
 realist = xmldoc.getElementsByTagName('rearrangement')
 if len(realist) > 0:
-    rea = tempfile.NamedTemporaryFile(delete=False)
+    rea = tempfile.NamedTemporaryFile(delete=False, mode='wt')
     rea.write('fus\n')
     for s in realist:
         rea.write(s.attributes['targeted-gene'].value + '__' +  s.attributes['other-gene'].value)
@@ -112,7 +112,7 @@ if(reafile):
 else:
     print('No Rearangement data detected\n')
     
-if varfile==False & cnafile==False & reafile==False:
+if (varfile==False and cnafile==False and reafile==False):
     print('No input data in XML file')
     sys.exit(0)
     
@@ -159,13 +159,14 @@ print('done')
 print('Output saved to ' + outDir + '/' + name + '.zip')
 
 # delete the oldest job on the server
-r = requests.get(api, headers=headers, verify=False)
-jobList = r.json()
+#r = requests.get(api, headers=headers, verify=False)
+#jobList = r.json()
  
-date = {}
-for index, i in enumerate(jobList):
-    r = requests.get(api + i, headers=headers, verify=False)
-    date[index] = datetime.strptime(r.json()['metadata']['date'], '%Y-%m-%d %H:%M:%S')
-doDelete = jobList[max(date)]
-r = requests.delete(api + doDelete, headers=headers, verify=False)
-r.json()
+#date = {}
+#for index, i in enumerate(jobList):
+#    r = requests.get(api + i, headers=headers, verify=False)
+#    date[index] = datetime.strptime(r.json()['metadata']['date'], '%Y-%m-%d %H:%M:%S')
+#doDelete = jobList[max(date)]
+#r = requests.delete(api + doDelete, headers=headers, verify=False)
+#r.json()
+
