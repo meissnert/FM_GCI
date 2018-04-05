@@ -66,7 +66,7 @@ else: varfile=False
 if(varfile):
     print('variant input: \n')
     with open(var.name, 'r') as fin:
-        print fin.read()
+        print(fin.read())
 else:
     print('No variant data detected\n')
     
@@ -89,7 +89,7 @@ else: cnafile=False
 if(cnafile):    
     print('Copy number input: \n')
     with open(cna.name, 'r') as fin:
-        print fin.read()
+        print(fin.read())
 else:
     print('No copy number data detected\n')
         
@@ -108,7 +108,7 @@ else: reafile=False
 if(reafile):
     print('Rearangements input: \n')
     with open(rea.name, 'r') as fin:
-        print fin.read()
+        print(fin.read())
 else:
     print('No Rearangement data detected\n')
     
@@ -132,7 +132,7 @@ files = {k:v for k,v in files.items() if v is not None}
 
 r = requests.post(api,
                 headers=headers,
-                verify=False,
+                verify=True,
                 files=files,
                 data=payload)
 job = api + r.json()
@@ -143,30 +143,21 @@ print('JOB ID: ' + r.json() + '\n')
 ### wait for the job to complete
 import time
 starttime=time.time()
-r = requests.get(job, headers=headers, verify=False)
-while r.json()['status']=='Running':
-  r = requests.get(job, headers=headers, verify=False)
-  print "Waiting for job to complete, cheking again in 15s ..."
+r = requests.get(job, headers=headers, verify=True)
+while r.json()['status']!='Done':
+  r = requests.get(job, headers=headers, verify=True)
+  print("Waiting for job to complete, cheking again in 15s ...")
   time.sleep(15.0 - ((time.time() - starttime) % 15.0))
 
 ### download results
 payload={'action':'download'}
-r = requests.get(job, headers=headers, params=payload, verify=False)
-with open(outDir + '/' + name + '.zip', 'wb') as fd:
+r = requests.get(job, headers=headers, params=payload, verify=True)
+with open(outDir + '/' + 'CGI_' + name + '.zip', 'wb') as fd:
     fd.write(r._content)
     
 print('done')
-print('Output saved to ' + outDir + '/' + name + '.zip')
+print('Output saved to ' + outDir + '/' + 'CGI_' + name + '.zip')
 
-# delete the oldest job on the server
-#r = requests.get(api, headers=headers, verify=False)
-#jobList = r.json()
- 
-#date = {}
-#for index, i in enumerate(jobList):
-#    r = requests.get(api + i, headers=headers, verify=False)
-#    date[index] = datetime.strptime(r.json()['metadata']['date'], '%Y-%m-%d %H:%M:%S')
-#doDelete = jobList[max(date)]
-#r = requests.delete(api + doDelete, headers=headers, verify=False)
-#r.json()
-
+# delete the job on the server
+r = requests.delete(job, headers=headers, verify=True)
+r.json()
