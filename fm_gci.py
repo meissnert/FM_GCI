@@ -144,7 +144,7 @@ print('JOB ID: ' + r.json() + '\n')
 import time
 starttime=time.time()
 r = requests.get(job, headers=headers, verify=True)
-while r.json()['status']!='Done':
+while (r.json()['status']!='Done' and r.json()['status']!='Error'):
   r = requests.get(job, headers=headers, verify=True)
   print("Waiting for job to complete, cheking again in 15s ...")
   time.sleep(15.0 - ((time.time() - starttime) % 15.0))
